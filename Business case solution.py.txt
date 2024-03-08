@@ -1,0 +1,510 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr 18 19:50:04 2023
+
+
+"""
+
+from datetime import datetime
+
+class User:
+    def __init__(self, name, mobile_number, password, dob, address=''):
+        self.name = name
+        self.mobile_number = mobile_number
+        self.password = password
+        self.dob = dob
+        self.address = address
+        self.restaurant = RestuarantOrdering()
+
+        self.users = []
+
+    def get_address(self):
+        return self.address
+    
+    def set_address(self, new_address):
+        self.address = new_address
+
+    def login(self, mobile_number, password):
+        for user in users:
+            if user.mobile_number == mobile_number and user.password == password:
+                print("You have successfully signed in")
+                self.restaurant.user_interface()
+                return
+                
+        print("You have entered invalid mobile number or password. ")
+
+class RestuarantOrdering:
+
+    def __init__(self):
+        self.items = {
+            '1': {'name': 'Noodles', 'price': 2},
+            '2': {'name': 'Sandwich', 'price': 4},
+            '3': {'name': 'Dumpling', 'price': 6},
+            '4': {'name': 'Muffins', 'price': 8},
+            '5': {'name': 'Pasta', 'price': 10},
+            '6': {'name': 'Pizza', 'price': 20},
+            '7': {'name': 'Drinks Menu', 'price': 0}
+        }
+        self.total_price = 0
+        self.current_item_selected_price = 0
+        self.total_price2 = 0
+        self.choice = None
+        self.choice2 = None
+        self.drink_choice = None
+        self.checkout_choice = None
+        self.visit_date = None
+        self.time_of_visit = None
+        self.num_of_person = None
+        self.name_of_pickup_person = None
+        self.delivery_date = None
+        self.delivery_time = None
+        self.distance = None
+        self.service_charge = 0
+        self.total_final_price = 0
+        self.current_order_total_price = 0
+        self.unique_order_id = 0
+        self.order_type = ''
+        self.order_id_string = ''
+        self.order_history = []
+        
+
+    #New function for printing the menu
+    def print_menu(self, is_dine_in = False, is_home_delivery = False):
+        address = user.get_address()
+        while True:
+            print("Enter 1 for Noodles \tPrice AUD 2")
+            print("Enter 2 for Sandwich \tPrice AUD 4")
+            print("Enter 3 for Dumpling \tPrice AUD 6")
+            print("Enter 4 for Muffins \tPrice AUD 8")
+            print("Enter 5 for Pasta \tPrice AUD 10")
+            print("Enter 6 for Pizza \tPrice AUD 20")
+            if is_dine_in == True:
+                print("Enter 7 for Drinks Menu: ")
+            elif is_dine_in == False:
+                print("Enter 7 to proceed to Checkout: ")
+            self.choice = input()
+            if self.choice == '7':
+                if is_dine_in == True:
+                    print("Enter 1 for Coffee \tPrice AUD 2")
+                    print("Enter 2 for Colddrink \tPrice AUD 4")
+                    print("Enter 3 for Shake \tPrice AUD 6")
+                    print("Enter 4 for Checkout: \t")
+                elif is_dine_in == False:
+                    print("Enter 4 for Checkout: \t")
+                while True:
+                    self.drink_choice = input()
+                    if self.drink_choice == '4':
+                        print("Please Enter Y to proceed to Checkout or")
+                        print("Enter N to cancel the order: ")
+                        while True:
+                            self.checkout_choice = input()
+                            if self.checkout_choice == 'Y':
+                                # checkout code will be here
+
+                                self.unique_order_id += 1
+                                self.order_id_string = 'S{:03d}'.format(self.unique_order_id)
+
+                                selected_item = self.items[self.choice]
+                                
+                                self.total_price += selected_item['price']
+                                
+                                self.current_item_selected_price += selected_item['price']
+
+                                #This is dine in order
+                                if is_dine_in == True and is_home_delivery == False:
+                                    
+                                    self.service_charge = round(self.current_item_selected_price * 0.15, 1)
+                                    
+
+                                    self.current_order_total_price = round(self.current_item_selected_price + self.service_charge, 1)  # add 15% service charge
+                                    self.total_final_price = round(self.total_price + self.service_charge, 1)  # add 15% service charge
+
+                                    
+                                    print(f"Your total payable amount is:  {self.current_order_total_price} inclusive AUD {self.service_charge} for Service Charges")
+                                    self.current_item_selected_price = 0
+                                    date_of_visit = input("Please enter the Date of Pick up (DD/MM/YYYY): ")
+                                    
+                                    date = datetime.strptime(date_of_visit, '%d/%m/%Y').date()
+                                    self.visit_date = date.strftime('%d/%m/%Y')
+                                    self.time_of_visit = input("Please enter the Time of Booking for Dine in: ")
+                                    self.num_of_person = int(input("Please enter the Number of Persons: "))
+
+                                    order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Dine-In"]
+                                    self.order_history.append(order_details)
+
+                                    print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                    
+                                    self.user_interface()
+
+                                    break
+                                #This is pick up order
+                                elif is_dine_in == False and is_home_delivery == False:
+
+
+                                    self.total_final_price = round(self.total_price, 1)
+                                    self.current_order_total_price = round(self.current_item_selected_price, 1)
+                                    
+                                    print(f"Your total payable amount is:  {self.current_order_total_price} with no Service Charges. ")
+                                    self.current_item_selected_price = 0
+                                    date_of_visit = input("Please enter the Date of Pick up (DD/MM/YYYY): ")
+                                    
+                                    date = datetime.strptime(date_of_visit, '%d/%m/%Y').date()
+                                    self.visit_date = date.strftime('%d/%m/%Y')
+                                    self.time_of_visit = input("Please enter the Time of Pick up: ")
+                                    self.name_of_pickup_person = str(input("Please enter the Name of the Persons: "))
+                                    order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Pick Up"]
+                                    self.order_history.append(order_details)
+
+                                    print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                    self.user_interface()
+                                    
+                                   
+                                    break
+                                #This is delivery order
+                                elif is_dine_in == False and is_home_delivery == True:
+                                    if address == "":
+                                        print("You have not mentioned your address, while signing up. ")
+                                        print("Please Enter Y if would like to enter your address or enter N if you would like to select other mode of order ")
+                                        choice4 = input()
+                                        if choice4 == 'Y':
+                                            new_address = input("Please enter your address. ")
+                                            user.set_address(new_address)
+                                            
+                                        elif choice4 == 'N':
+                                            self.total_price = 0
+                                            self.current_item_selected_price = 0
+                                            self.user_interface()
+                                            
+                                    
+                                    self.total_final_price = round(self.total_price, 1)
+                                    self.current_order_total_price = round(self.current_item_selected_price, 1)
+
+                                    print(f"Your total payable amount is:  {self.current_order_total_price} and there will be an additional charges for Delivery. ")
+                                    self.delivery_date = input("Please enter the Date of Delivery (DD/MM/YYYY): ")
+                                    self.delivery_time = input("Please enter the Time Of Delivery (HH:MM): ")
+                                    self.distance = int(input("Please enter the Distance from the restaurant: "))
+                                    
+
+                                    if self.distance >= 0 and self.distance <= 5:
+                                        self.total_final_price = self.total_price + 5
+                                        self.current_order_total_price = self.current_order_total_price + 5
+                                        print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                        print(f"Your total payable amount is:  {self.current_order_total_price} with Delivery charge of AUD 5")
+                                        order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Delivery"]
+                                        self.order_history.append(order_details)
+                                        self.current_item_selected_price = 0
+                                        self.user_interface()
+                                        break
+                                    elif self.distance > 5 and self.distance <= 10:
+                                        self.total_final_price = self.total_price + 10
+                                        self.current_order_total_price = self.current_order_total_price + 10
+                                        print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                        print(f"Your total payable amount is:  {self.current_order_total_price} with Delivery charge of AUD 10")
+                                        order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Delivery"]
+                                        self.order_history.append(order_details)
+                                        self.current_item_selected_price = 0
+                                        self.user_interface()
+                                        break
+                                    elif self.distance > 10 and self.distance <= 15:
+                                        self.total_final_price = self.total_price + 18
+                                        self.current_order_total_price = self.current_order_total_price + 18
+                                        print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                        print(f"Your total payable amount is:  {self.current_order_total_price} with Delivery charge of AUD 18")
+                                        order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Delivery"]
+                                        self.order_history.append(order_details)
+                                        self.current_item_selected_price = 0
+                                        self.user_interface()
+                                        break
+                                    elif self.distance > 15:
+                                        print("Sorry, we do not provide delivery for over 15 KM. ")
+                                        self.delivery_choice = input("Do you like to Pick up the order instead? (Y/N) ")
+                                        if self.delivery_choice == 'Y':
+                                            date_of_visit = input("Please enter the Date of Pick up (DD/MM/YYYY): ")
+                                            
+                                            date = datetime.strptime(date_of_visit, '%d/%m/%Y').date()
+                                            self.visit_date = date.strftime('%d/%m/%Y')
+                                            self.time_of_visit = input("Please enter the Time of Pick up: ")
+                                            self.name_of_pickup_person = str(input("Please enter the Name of the Persons: "))
+                                            print(f"Your total payable amount is:  {self.current_order_total_price} with no Service Charges")
+                                            print("Thank you for entering the details, Your Booking is confirmed. Your order ID is: ", self.order_id_string)
+                                            order_details = [self.order_id_string, self.visit_date, self.current_order_total_price, "Pick Up"]
+                                            self.order_history.append(order_details)
+                                            self.current_item_selected_price = 0
+                                            self.user_interface()
+                                    
+                                        elif self.delivery_choice == 'N':
+                                            self.current_item_selected_price = 0
+                                            self.user_interface()
+                                            break
+                                        else: 
+                                            print("Invalid input")
+                                            continue
+                                        break
+                                
+                                    
+                            elif self.checkout_choice == 'N':
+                                print("Thank you for entering the details, Your Booking is CANCELLED.\n")
+                                self.current_item_selected_price = 0
+                                self.user_interface()
+                                
+                                break
+                    elif self.drink_choice == '1':
+                        print("You have selected Coffee \tPrice AUD 2\n")
+                        print("Enter 1 for Coffee \tPrice AUD 2")
+                        print("Enter 2 for Colddrink \tPrice AUD 4")
+                        print("Enter 3 for Shake \tPrice AUD 6")
+                        print("Enter 4 for Checkout: \t")
+                        self.total_price += 2
+                        self.current_item_selected_price += 2
+                        # breakpoint()
+                    elif self.drink_choice == '2':
+                        print("You have selected Colddrink \tPrice AUD 4\n")
+                        print("Enter 1 for Coffee \tPrice AUD 2")
+                        print("Enter 2 for Colddrink \tPrice AUD 4")
+                        print("Enter 3 for Shake \tPrice AUD 6")
+                        print("Enter 4 for Checkout: \t")
+                        self.total_price += 4
+                        self.current_item_selected_price += 4
+                    elif self.drink_choice == '3':
+                        print("You have selected Shake \tPrice AUD 6\n")
+                        print("Enter 1 for Coffee \tPrice AUD 2")
+                        print("Enter 2 for Colddrink \tPrice AUD 4")
+                        print("Enter 3 for Shake \tPrice AUD 6")
+                        print("Enter 4 for Checkout: \t")
+                        self.total_price += 6
+                        self.current_item_selected_price += 6
+                    else:
+                        print("Invalid choice. Please try again.")
+            elif self.choice not in self.items:
+                print("Invalid choice. Please try again.")
+                continue
+            else:
+                selected_item = self.items[self.choice]
+                print(f"You have selected {selected_item['name']} \tPrice AUD {selected_item['price']}")
+                self.total_price += selected_item['price']
+                self.current_item_selected_price += selected_item['price']
+
+            # breakpoint()
+    def print_statistics(self, stats_choice):
+        # filter orders by type
+        dine_in_orders = [order for order in self.order_history if order[3] == 'Dine-In']
+        pick_up_orders = [order for order in self.order_history if order[3] == 'Pick Up']
+        delivery_orders = [order for order in self.order_history if order[3] == 'Delivery']
+
+
+        # create orders table
+        if stats_choice == '1':
+            if not dine_in_orders:
+                print("No Dine-In orders found.")
+            else:
+                print("Option 1: All Dine-In orders Output: ")
+                print("Order ID        Date          Total Amount Paid         Type of Order")
+                for order in dine_in_orders:
+                    print(f"{order[0]}        {order[1]}            {order[2]}                      {order[3]}")
+        elif stats_choice == '2':
+            if not pick_up_orders:
+                print("No Pick-Up orders found.")
+            else:
+                print("\nOption 2: All Pickup Orders Output: ")
+                print("Order ID        Date         Total Amount Paid          Type of Order")
+                for order in pick_up_orders:
+                    print(f"{order[0]}        {order[1]}            {order[2]}                      {order[3]}")
+        elif stats_choice == '3':
+            if not delivery_orders:
+                print("No Delivery orders found.")
+            else:
+                print("\nOption 3: All Deliveries:")
+                print("Order ID        Date         Total Amount Paid          Type of Order")
+                for order in delivery_orders:
+                    print(f"{order[0]}        {order[1]}            {order[2]}                      {order[3]}")
+
+        elif stats_choice == '4':
+            if not self.order_history:
+                print("No orders found.")
+            else:
+                print("\nOption 4: All Orders (Ascending order): ")
+                print("Order ID        Date          Total Amount Paid         Type of Order")
+                # sort order history by ascending order of Order ID
+                sorted_orders = sorted(self.order_history, key=lambda order: int(order[0][1:]))
+                for order in sorted_orders:
+                    print(f"{order[0]}        {order[1]}            {order[2]}                      {order[3]}")
+
+        elif stats_choice == '5':
+            if not self.order_history:
+                print("No orders found.")
+            else:
+                print("\nOption 5: Total Amount Spent on All Orders: ")
+                total_amount = sum(order[2] for order in self.order_history)
+                print(f"Total Amount Spent on all orders AUD : {total_amount}")
+
+
+    def user_interface(self):
+        while True:
+            print("Please Enter 2.1 to Start Ordering.")
+            print("Please Enter 2.2 to Print Statistics.")
+            print("Please Enter 2.3 for Logout.")
+            self.choice2 = input()
+            if self.choice2 == '2.1':
+                print("Please Enter 1 for Dine in.")
+                print("Please Enter 2 for Order Online.")
+                print("Please Enter 3 to go to Login Page.")
+                self.order_choice = input()
+                if self.order_choice == '1':
+                    print("You have selected Dine in")
+                    # Dine in functionality goes here
+                    RestuarantOrdering.print_menu(self, is_dine_in=True, is_home_delivery=False)                          
+                elif self.order_choice == '2':
+                    print("You have selected Order Online")
+                    print("Enter 1 for Self Pickup.")
+                    print("Enter 2 for Home Delivery.")
+                    print("Enter 3 to go to Previous Menu.")
+                    self.delivery_choice = input()
+                    if self.delivery_choice == '1':
+                        print("You have selected Self Pickup")
+                        # Self Pickup functionality goes here
+                        RestuarantOrdering.print_menu(self, is_dine_in=False, is_home_delivery=False)
+                    elif self.delivery_choice == '2':
+                        print("You have selected Home Delivery")
+                        # Home Delivery functionality goes here
+                        RestuarantOrdering.print_menu(self, is_dine_in=False, is_home_delivery=True)
+
+                    elif self.delivery_choice == '3':
+                        continue
+                    else:
+                        print("Invalid choice. Please try again.")
+                elif self.order_choice == '3':
+                    continue
+                else:
+                    print("Invalid choice. Please try again.")
+            elif self.choice2 == '2.2':
+                # Print Statistics functionality goes here
+                print("Please Enter the Option to Print the Statistics. ")
+                print("1 - All Dine in Orders. ")
+                print("2 - All Pick up Orders.")
+                print("3 - All Deliveries. ")
+                print("4 - All Orders (Ascending order). ")
+                print("5 - Total Amount Spent on All Orders. ")
+                print("6 - To go to Previous Menu. ")
+                self.statistics_choice = input()
+                if self.statistics_choice == '1':
+                    print("All Dine in Orders.")
+                    self.print_statistics('1')
+                elif self.statistics_choice == '2':
+                    print("All Pick up Orders.")
+                    self.print_statistics('2')
+                elif self.statistics_choice == '3':
+                    print("All Delivery Orders")
+                    self.print_statistics('3')
+                elif self.statistics_choice == '4':
+                    print("All Orders (Ascending Order)")
+                    self.print_statistics('4')
+                elif self.statistics_choice == '5':
+                    print("Total Amount Spent on All Orders.")
+                    self.print_statistics('5')
+                elif self.statistics_choice == '6':
+                    self.user_interface()
+                pass
+            elif self.choice2 == '2.3':
+                print("You have successfully logged out")
+                exit()
+                break
+            else:
+                print("Invalid choice. Please try again.")
+                
+    
+    
+class Signup:
+    @staticmethod
+    def validate_mobile_number(mobile_number):
+        if len(mobile_number) != 10 or mobile_number[0] != '0' or not mobile_number.isdigit():
+            print("Please enter a valid mobile number (10 digits, starts with 0)")
+            return False
+        return True
+    
+    @staticmethod
+    
+    def validate_password(password):
+        if len(password) < 4 or not password[0].isalpha() or not password[-1].isdigit():
+            print("Please enter a valid password (starts with alphabets, ends with number and contains only @ or & in any part)")
+            return False
+        for char in password[1:-1]:
+            if char in '@&':
+                return True
+        print("Please enter a valid password (starts with alphabets, ends with number and contains only @ or & in any part)")
+        return False
+    
+    @staticmethod
+    def validate_dob(dob):
+        try:
+            dob_date = datetime.strptime(dob, '%d/%m/%Y').date()
+            age = datetime.now().year - dob_date.year
+            if age < 21:
+                print("You must be at least 21 years old to sign up")
+                return False
+            return True
+        except ValueError:
+            print("Please enter a valid date of birth (in the format DD/MM/YYYY)")
+            return False
+        
+    @staticmethod
+    def validate_password_confirmation(password, password_confirmation):
+        if password != password_confirmation:
+            print("The password confirmation does not match the initial entered password")
+            return False
+        return True
+    
+    @classmethod
+    def signup(cls):
+        while True:
+            name = input("Please enter your name: ")
+            address = input("Please enter your address or press enter to Skip: ")
+            mobile_number = input("Please enter your mobile number: ")
+            if cls.validate_mobile_number(mobile_number):
+                break
+        while True:
+            password = input("Please enter your Password: ")
+            password_confirmation = input("Please enter your Password: ")
+            if cls.validate_password(password) and cls.validate_password_confirmation(password, password_confirmation):
+                break
+        while True:
+            dob = input("Please Enter your Date of Birth # DD/MM/YYYY (No Space): ")
+            if cls.validate_dob(dob):
+                break
+        user = User(name, mobile_number, password, dob, address)
+        users.append(user)
+        print("You have Successfully Signed up.")
+
+users = []
+
+while True:
+    print("Please Enter 1 for Sign up.")
+    print("Please Enter 2 for Sign in.")
+    print("Please Enter 3 for Quit.")
+    choice3 = input()
+    if choice3 == '1':
+        Signup.signup()
+    elif choice3 == '2':
+        # Login functionality goes here
+        while True:
+            mobile_number = input("Please enter your Username (Mobile Number): ")
+            password = input("Please enter your password: ")
+            user = None
+            for u in users:
+                if u.mobile_number == mobile_number:
+                    user = u
+                    break
+            if user is not None and user.password == password:
+                print("You have successfully signed in")
+                address = user.get_address()
+                user.restaurant.user_interface()
+                break
+            else:
+                print("Invalid mobile number or password. Please try again.")
+            break
+        pass
+    elif choice3 == '3':
+        exit()
+        break
+    else:
+        print("Invalid choice. Please try again.")
